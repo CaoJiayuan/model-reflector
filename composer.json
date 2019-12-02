@@ -1,0 +1,21 @@
+{
+    "name": "nerio/model-reflector",
+    "description": "Reflect array to model",
+    "type": "library",
+    "require": {
+        "symfony/property-info": "^5.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "caojiayuan",
+            "email": "cjy632258@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Nerio\\ModelReflector\\": "src/"
+        }
+    }
+}
