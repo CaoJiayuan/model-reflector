@@ -2,9 +2,6 @@
 
 namespace Nerio\ModelReflector;
 
-use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Type;
 
 /**
@@ -12,28 +9,10 @@ use Symfony\Component\PropertyInfo\Type;
  */
 class ModelReflector
 {
-
-    protected $propertyInfo;
-
     private $original;
 
     public function __construct($data)
     {
-        $phpDocExtractor = new PhpDocExtractor();
-        $reflectionExtractor = new ReflectionExtractor();
-        $listExtractors = [$reflectionExtractor];
-        $typeExtractors = [$phpDocExtractor, $reflectionExtractor];
-        $descriptionExtractors = [$phpDocExtractor];
-        $accessExtractors = [$reflectionExtractor];
-        $propertyInitializableExtractors = [$reflectionExtractor];
-        $this->propertyInfo = new PropertyInfoExtractor(
-            $listExtractors,
-            $typeExtractors,
-            $descriptionExtractors,
-            $accessExtractors,
-            $propertyInitializableExtractors
-        );
-
         $this->loadFromArray($data);
     }
 
@@ -50,13 +29,13 @@ class ModelReflector
                     $this->$key = null;
                 } else {
                     /** @var Type[] $types */
-                    $types = $this->propertyInfo->getTypes(static::class, $key);
+                    $types = Reflector::getPropertyInfo()->getTypes(static::class, $key);
                     if ($types) {
                         foreach ($types as $type) {
                             $builtinType = $type->getBuiltinType();
                             $class = $type->getClassName();
                             $collection = $type->isCollection();
-                            if ($builtinType == 'object' && is_subclass_of($class,ModelReflector::class)) {
+                            if ($builtinType == 'object' && is_subclass_of($class, ModelReflector::class)) {
                                 $this->validateReflectData($value, $class);
                                 $this->$key = $class::make($value);
                             } elseif ($this->isCommonType($builtinType)) {
@@ -64,7 +43,7 @@ class ModelReflector
                             } elseif ($collection) {
                                 $ct = $type->getCollectionValueType();
                                 $itemClass = $ct->getClassName();
-                                if (!is_subclass_of($itemClass,ModelReflector::class)) {
+                                if (!is_subclass_of($itemClass, ModelReflector::class)) {
                                     throw new \InvalidArgumentException("Model property [{$key}] must an array of instance of ModelReflector");
                                 }
                                 foreach ($value as $k => $v) {
@@ -95,28 +74,6 @@ class ModelReflector
         return true;
     }
 
-    protected function castCommonType($type, $value)
-    {
-        switch ($type) {
-            case 'int':
-            case 'integer':
-                return (int) $value;
-            case 'real':
-            case 'float':
-            case 'double':
-                return (float) $value;
-            case 'string':
-                return (string) $value;
-            case 'bool':
-            case 'boolean':
-                return (bool) $value;
-            case 'json':
-                return json_decode($value, true);
-            default:
-                return $value;
-        }
-    }
-
     protected function isCommonType($type)
     {
         return in_array($type, [
@@ -133,6 +90,28 @@ class ModelReflector
             'json',
             'string'
         ]);
+    }
+
+    protected function castCommonType($type, $value)
+    {
+        switch ($type) {
+            case 'int':
+            case 'integer':
+                return (int)$value;
+            case 'real':
+            case 'float':
+            case 'double':
+                return (float)$value;
+            case 'string':
+                return (string)$value;
+            case 'bool':
+            case 'boolean':
+                return (bool)$value;
+            case 'json':
+                return json_decode($value, true);
+            default:
+                return $value;
+        }
     }
 
     public static function make($data)
