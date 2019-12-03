@@ -55,7 +55,9 @@ class ModelReflector
                         $collection = $type->isCollection();
                         if ($builtinType == 'object' && is_subclass_of($class,ModelReflector::class)) {
                             $this->$key = $class::make($value);
-                        } else if ($collection) {
+                        } elseif ($this->isCommonType($builtinType)) {
+                            $this->$key = $this->castCommonType($builtinType, $value);
+                        } elseif ($collection) {
                             $ct = $type->getCollectionValueType();
                             $itemClass = $ct->getClassName();
                             if (!is_subclass_of($itemClass,ModelReflector::class)) {
@@ -75,6 +77,46 @@ class ModelReflector
                 }
             }
         }
+    }
+
+    protected function castCommonType($type, $value)
+    {
+        switch ($type) {
+            case 'int':
+            case 'integer':
+                return (int) $value;
+            case 'real':
+            case 'float':
+            case 'double':
+                return (float) $value;
+            case 'string':
+                return (string) $value;
+            case 'bool':
+            case 'boolean':
+                return (bool) $value;
+            case 'json':
+                return json_decode($value, true);
+            default:
+                return $value;
+        }
+    }
+
+    protected function isCommonType($type)
+    {
+        return in_array($type, [
+            'int',
+            'integer',
+            'float',
+            'double',
+            'real',
+            'bool',
+            'boolean',
+            'date',
+            'datetime',
+            'timestamp',
+            'json',
+            'string'
+        ]);
     }
 
     public static function make($data)
