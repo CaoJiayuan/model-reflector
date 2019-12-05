@@ -139,7 +139,7 @@ class Reflector
                         $builtinType = $type->getBuiltinType();
                         $class = $type->getClassName();
                         $collection = $type->isCollection();
-                        if ($builtinType == 'object' && is_subclass_of($class, ModelReflector::class)) {
+                        if ($builtinType == 'object') {
                             self::validateReflectData($value, $class);
                             $instance->$key = self::loadFromArray($class, $value);
                         } elseif (self::isCommonType($builtinType)) {
@@ -147,9 +147,6 @@ class Reflector
                         } elseif ($collection) {
                             $ct = $type->getCollectionValueType();
                             $itemClass = $ct->getClassName();
-                            if (!is_subclass_of($itemClass, ModelReflector::class)) {
-                                throw new \InvalidArgumentException("Model property [{$key}] must an array of instance of ModelReflector");
-                            }
                             foreach ($value as $k => $v) {
                                 self::validateReflectData($value, $itemClass);
                                 $instance->$key[$k] = self::loadFromArray($itemClass, $v);
