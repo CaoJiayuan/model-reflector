@@ -95,7 +95,7 @@ class Reflector
 
     protected static function makeDefaultType()
     {
-        return new Type(Type::BUILTIN_TYPE_STRING, true);
+        return new Type(Type::BUILTIN_TYPE_NULL, true);
     }
 
     protected static function makeCacheData($class, $prop, Type $type)
