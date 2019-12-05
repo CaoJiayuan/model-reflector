@@ -79,7 +79,7 @@ class Reflector
             self::$cacheDir = __DIR__ . '/../_cache';
         }
         if (!file_exists(self::$cacheDir)) {
-            mkdir(self::$cacheDir);
+            mkdir(self::$cacheDir, 0775, true);
         }
 
         return self::$cacheDir . DIRECTORY_SEPARATOR . $key;
