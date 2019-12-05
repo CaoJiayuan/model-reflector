@@ -3,7 +3,8 @@
     "description": "Reflect array to model",
     "type": "library",
     "require": {
-        "symfony/property-info": "^5.0"
+        "symfony/property-info": "^5.0",
+        "caojiayuan/utility": "dev-master"
     },
     "license": "MIT",
     "authors": [
