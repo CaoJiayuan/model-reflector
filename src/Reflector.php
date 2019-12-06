@@ -145,12 +145,7 @@ class Reflector
                         } elseif (self::isCommonType($builtinType)) {
                             $instance->$key = self::castCommonType($builtinType, $value);
                         } elseif ($collection) {
-                            $ct = $type->getCollectionValueType();
-                            $itemClass = $ct->getClassName();
-                            foreach ($value as $k => $v) {
-                                self::validateReflectData($value, $itemClass);
-                                $instance->$key[$k] = self::loadFromArray($itemClass, $v);
-                            }
+                            $instance->$key = self::makeCollectionValue($type, $value);
                         } else {
                             $instance->$key = $value;
                         }
@@ -162,6 +157,26 @@ class Reflector
         }
 
         return $instance;
+    }
+
+    protected static function makeCollectionValue(Type $type, $value)
+    {
+        $ct = $type->getCollectionValueType();
+
+        $cc = $ct->isCollection();
+        $itemClass = $ct->getClassName();
+
+        $result = [];
+        foreach ($value as $k => $v) {
+            self::validateReflectData($value, $itemClass);
+            if ($cc) {
+                $result[$k] = self::makeCollectionValue($ct, $v);
+            } else {
+                $result[$k] = self::loadFromArray($itemClass, $v);
+            }
+        }
+
+        return $result;
     }
 
     protected static function getTypeFromCache($class, $prop)
