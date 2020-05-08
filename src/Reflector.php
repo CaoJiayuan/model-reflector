@@ -120,6 +120,10 @@ class Reflector
 
     public static function loadFromArray($clz, $data)
     {
+        if (is_null($data)) {
+            return null;
+        }
+
         if (is_object($clz)) {
             $instance = $clz;
         } else {
@@ -161,6 +165,9 @@ class Reflector
 
     protected static function makeCollectionValue(Type $type, $value)
     {
+        if (is_null($value)) {
+            return [];
+        }
         $ct = $type->getCollectionValueType();
 
         $cc = $ct->isCollection();
